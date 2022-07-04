@@ -320,15 +320,15 @@ with tempfile.TemporaryDirectory() as tmp_dir:
 
     for split, df in splits.items():
 
-        > Make the artifact name from the name of the split plus the provided root
+        # Make the artifact name from the name of the split plus the provided root
         artifact_name = f"{split}.csv"
 
-        > Get the path on disk within the temp directory
+        # Get the path on disk within the temp directory
         temp_path = os.path.join(tmp_dir, artifact_name)
 
         logger.info(f"Uploading the {split} dataset to {artifact_name}")
 
-        > Save then upload to W&B
+        # Save then upload to W&B
         df.to_csv(temp_path,index=False)
 
         artifact = wandb.Artifact(name=artifact_name,
@@ -340,10 +340,10 @@ with tempfile.TemporaryDirectory() as tmp_dir:
         logger.info("Logging artifact")
         run.log_artifact(artifact)
 
-        > This waits for the artifact to be uploaded to W&B. If you
-        > do not add this, the temp directory might be removed before
-        > W&B had a chance to upload the datasets, and the upload
-        > might fail
+        # This waits for the artifact to be uploaded to W&B. If you
+        # do not add this, the temp directory might be removed before
+        # W&B had a chance to upload the datasets, and the upload
+        # might fail
         artifact.wait()
 ~~~
 
