@@ -638,8 +638,7 @@ full_pipeline_preprocessing = FeatureUnion(transformer_list=[('cat_pipeline', ca
                                            )
 ~~~
 
-Validação
-
+Validaçãopós modelos
 ~~~
 # for validation purposes
 new_data = full_pipeline_preprocessing.fit_transform(x_train)
@@ -679,5 +678,55 @@ logger.info("Precision: {}".format(precision))
 logger.info("Recall: {}".format(recall))
 logger.info("F1: {}".format(fbeta))
 ~~~
+
+Obtendo o resumo das métricas 
+~~~
+run.summary["Acc"] = acc
+run.summary["Precision"] = precision
+run.summary["Recall"] = recall
+run.summary["F1"] = fbeta
+~~~
+
+Comparando a acurácia, precisão e recall
+~~~
+print(classification_report(y_val,predict))
+~~~
+
+Plot da matrix de confusão
+~~~
+fig_confusion_matrix, ax = plt.subplots(1,1,figsize=(7,4))
+ConfusionMatrixDisplay(confusion_matrix(predict,y_val,labels=[1,0]),
+                       display_labels=["yes","no"]).plot(values_format=".0f",ax=ax)
+
+ax.set_xlabel("True Label")
+ax.set_ylabel("Predicted Label")
+plt.show()
+~~~
+
+Salvando as figuras no wandb
+~~~
+# Uploading figures
+logger.info("Uploading figures")
+run.log(
+    {
+        "confusion_matrix": wandb.Image(fig_confusion_matrix),
+        # "other_figure": wandb.Image(other_fig)
+    }
+)
+~~~
+
+~~~
+~~~
+
+~~~
+~~~
+
+~~~
+~~~
+
+~~~
+~~~
+
+
 
 
