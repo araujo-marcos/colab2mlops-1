@@ -456,3 +456,22 @@ Conjunto de treinamento e teste após retirada de dados
 x_train = x_train.loc[mask,:].copy()
 y_train = y_train[mask].copy()
 ~~~
+
+
+~~~
+logger.info("Encoding Target Variable")
+# define a categorical encoding for target variable
+le = LabelEncoder()
+
+# fit and transform y_train
+y_train = le.fit_transform(y_train)
+
+# transform y_test (avoiding data leakage)
+y_val = le.transform(y_val)
+
+logger.info("Classes [0, 1]: {}".format(le.inverse_transform([0, 1])))
+~~~
+
+
+
+
