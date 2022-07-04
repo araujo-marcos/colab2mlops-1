@@ -81,6 +81,12 @@ Ants de realizar esta etapa será necessário criar um conta e adquirir a APIKEY
 ~~~
 import wandb
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+from pandas_profiling import ProfileReport
+import tempfile
+import os
 ~~~
   
 ## 4.5 Importando o dataset
@@ -98,10 +104,11 @@ income.head()
 ~~~
 
 ## 4.6 Raw Data
-Criar o arquivo .csv e enviar para o wandb como artefato. 
+Criar o arquivo .csv   
 ~~~
 income.to_csv("raw_data.csv",index=False)
 ~~~
+Enviando para o wandb como artefato.
 ~~~
 !wandb artifact put \
       --name decision_tree/raw_data.csv \
@@ -109,6 +116,29 @@ income.to_csv("raw_data.csv",index=False)
       --description "The raw data from bank marketing" raw_data.csv
 ~~~
 
+## 4.7 EDA
+Inicialmente vamos chamar (iniciar) o projeto decision_tree salvo no wandb.
+
+~~~
+run = wandb.init(project="decision_tree", save_code=True)
+~~~
+
+Fazer o download da última versão do artefato
+
+~~~
+# donwload the latest version of artifact raw_data.csv
+artifact = run.use_artifact("decision_tree/raw_data.csv:latest")
+~~~
+Criar o dataframe
+~~~
+# create a dataframe from the artifact
+df = pd.read_csv(artifact.file())
+~~~
+
+Visualização dos dados no Pandas Profiling
+~~~
+ProfileReport(df, title="Pandas Profiling Report", explorative=True)
+~~~
 
 
 
