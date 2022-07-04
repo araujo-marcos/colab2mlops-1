@@ -257,44 +257,49 @@ Tendo o código de teste faz a execução pelo terminal com o comando:
 
 ## 4.10 Data_segregation
 Define algumas variáveis globais
-Ratio used to split train and test data
+Razão utilizada para dividir o treinamento e teste
 ~~~
 test_size = 0.30
 ~~~
-Seed used to reproduce purposes
+Seed (semente utilizada para reprodução dos mesmos valores)
 ~~~
 seed = 41
 ~~~
-Reference (column) to stratify the data
+Coluna de referência para estratificar os dados
 ~~~
 stratify = "y"
 ~~~
-Name of the input artifact
+Nome do artefato
 ~~~
 artifact_input_name = "decision_tree/preprocessed_data.csv:latest"
 ~~~
-Type of the artifact
+Tipo do artefato
 artifact_type = "segregated_data"
 ~~~
 
-### configure logging
+## configure logging
 ~~~
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s %(message)s",
                     datefmt='%d-%m-%Y %H:%M:%S')
-
-> reference for a logging obj
+~~~
+Referência para um objeto logging
+~~~
 logger = logging.getLogger()
+~~~
 
-> initiate wandb project
+Ininica o projeto no wandb
+~~~
 run = wandb.init(project="decision_tree", job_type="split_data")
 
 logger.info("Downloading and reading artifact")
 artifact = run.use_artifact(artifact_input_name)
 artifact_path = artifact.file()
 df = pd.read_csv(artifact_path)
+~~~
 
-> Split firstly in train/test, then we further divide the dataset to train and validation
+Split firstly in train/test, then we further divide the dataset to train and validation
+~~~
 logger.info("Splitting data into train and test")
 splits = {}
 
@@ -303,7 +308,10 @@ splits["train"], splits["test"] = train_test_split(df,
                                                    random_state=seed,
                                                    stratify=df[stratify])
 
-> Save the artifacts. We use a temporary directory so we do not leave any trace behind
+~~~
+
+Save the artifacts. We use a temporary directory so we do not leave any trace behind
+~~~
 with tempfile.TemporaryDirectory() as tmp_dir:
 
     for split, df in splits.items():
