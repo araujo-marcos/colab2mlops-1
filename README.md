@@ -258,8 +258,8 @@ Tendo o código de teste faz a execução pelo terminal com o comando:
 ## 4.10 Data_segregation
 Define algumas variáveis globais
 
-# Razão utilizada para dividir o treinamento e teste
 ~~~
+# Razão utilizada para dividir o treinamento e teste
 test_size = 0.30
 
 # Seed (semente utilizada para reprodução dos mesmos valores)
