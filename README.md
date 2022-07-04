@@ -261,19 +261,24 @@ Razão utilizada para dividir o treinamento e teste
 ~~~
 test_size = 0.30
 ~~~
+
 Seed (semente utilizada para reprodução dos mesmos valores)
 ~~~
 seed = 41
 ~~~
+
 Coluna de referência para estratificar os dados
 ~~~
 stratify = "y"
 ~~~
+
 Nome do artefato
 ~~~
 artifact_input_name = "decision_tree/preprocessed_data.csv:latest"
 ~~~
+
 Tipo do artefato
+~~~
 artifact_type = "segregated_data"
 ~~~
 
@@ -307,7 +312,6 @@ splits["train"], splits["test"] = train_test_split(df,
                                                    test_size=test_size,
                                                    random_state=seed,
                                                    stratify=df[stratify])
-
 ~~~
 
 Save the artifacts. We use a temporary directory so we do not leave any trace behind
