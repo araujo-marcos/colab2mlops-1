@@ -257,23 +257,23 @@ Tendo o código de teste faz a execução pelo terminal com o comando:
 
 ## 4.10 Data_segregation
 Define algumas variáveis globais
-### ratio used to split train and test data
+Ratio used to split train and test data
 ~~~
 test_size = 0.30
 ~~~
-### seed used to reproduce purposes
+Seed used to reproduce purposes
 ~~~
 seed = 41
 ~~~
-### reference (column) to stratify the data
+Reference (column) to stratify the data
 ~~~
 stratify = "y"
 ~~~
-### name of the input artifact
+Name of the input artifact
 ~~~
 artifact_input_name = "decision_tree/preprocessed_data.csv:latest"
 ~~~
-### type of the artifact
+Type of the artifact
 artifact_type = "segregated_data"
 ~~~
 
@@ -283,10 +283,10 @@ logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s %(message)s",
                     datefmt='%d-%m-%Y %H:%M:%S')
 
-# reference for a logging obj
+> reference for a logging obj
 logger = logging.getLogger()
 
-# initiate wandb project
+> initiate wandb project
 run = wandb.init(project="decision_tree", job_type="split_data")
 
 logger.info("Downloading and reading artifact")
@@ -294,7 +294,7 @@ artifact = run.use_artifact(artifact_input_name)
 artifact_path = artifact.file()
 df = pd.read_csv(artifact_path)
 
-# Split firstly in train/test, then we further divide the dataset to train and validation
+> Split firstly in train/test, then we further divide the dataset to train and validation
 logger.info("Splitting data into train and test")
 splits = {}
 
@@ -303,20 +303,20 @@ splits["train"], splits["test"] = train_test_split(df,
                                                    random_state=seed,
                                                    stratify=df[stratify])
 
-# Save the artifacts. We use a temporary directory so we do not leave any trace behind
+> Save the artifacts. We use a temporary directory so we do not leave any trace behind
 with tempfile.TemporaryDirectory() as tmp_dir:
 
     for split, df in splits.items():
 
-        # Make the artifact name from the name of the split plus the provided root
+        > Make the artifact name from the name of the split plus the provided root
         artifact_name = f"{split}.csv"
 
-        # Get the path on disk within the temp directory
+        > Get the path on disk within the temp directory
         temp_path = os.path.join(tmp_dir, artifact_name)
 
         logger.info(f"Uploading the {split} dataset to {artifact_name}")
 
-        # Save then upload to W&B
+        > Save then upload to W&B
         df.to_csv(temp_path,index=False)
 
         artifact = wandb.Artifact(name=artifact_name,
@@ -328,10 +328,10 @@ with tempfile.TemporaryDirectory() as tmp_dir:
         logger.info("Logging artifact")
         run.log_artifact(artifact)
 
-        # This waits for the artifact to be uploaded to W&B. If you
-        # do not add this, the temp directory might be removed before
-        # W&B had a chance to upload the datasets, and the upload
-        # might fail
+        > This waits for the artifact to be uploaded to W&B. If you
+        > do not add this, the temp directory might be removed before
+        > W&B had a chance to upload the datasets, and the upload
+        > might fail
         artifact.wait()
 ~~~
 
