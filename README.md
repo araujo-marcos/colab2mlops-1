@@ -347,4 +347,9 @@ with tempfile.TemporaryDirectory() as tmp_dir:
         artifact.wait()
 ~~~
 
+Close the run
+~~~
+run.finish()
+~~~
+
 
