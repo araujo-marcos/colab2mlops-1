@@ -353,3 +353,48 @@ run.finish()
 ~~~
 
 
+## 4.11 Train
+
+Importe das principais bibliotecas que serão utilizadas nesta etapa
+
+~~~
+import joblib
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import LocalOutlierFactor
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.pipeline import Pipeline, FeatureUnion
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.impute import SimpleImputer
+from sklearn.metrics import fbeta_score, precision_score, recall_score, accuracy_score
+from sklearn.metrics import classification_report
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import ConfusionMatrixDisplay
+~~~
+
+Variaveis globais
+~~~
+# ratio used to split train and validation data
+val_size = 0.30
+
+# seed used to reproduce purposes
+seed = 41
+
+# reference (column) to stratify the data
+stratify = "y"
+
+# name of the input artifact
+artifact_input_name = "decision_tree/train.csv:latest"
+
+# type of the artifact
+artifact_type = "Train"
+~~~
+
+
+
+
