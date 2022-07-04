@@ -715,16 +715,35 @@ run.log(
 )
 ~~~
 
+Parâmetros de importância 
 ~~~
+# Feature importance
+pipe.get_params()["classifier"].feature_importances_
+
+# Get categorical and numerical columns names
+cat_names = pipe.named_steps['full_pipeline'].get_params()["cat_pipeline"][3].get_feature_names_out().tolist()
+
+# Get numerical column names
+num_names = pipe.named_steps['full_pipeline'].get_params()["num_pipeline"][2].get_feature_names_out()
 ~~~
 
+Juntar os nomes das colunas numéricas e categóricas
 ~~~
+all_names = cat_names + num_names
 ~~~
 
+Visualize all classifier plots
 ~~~
-~~~
-
-~~~
+# For a complete documentation please see: https://docs.wandb.ai/guides/integrations/scikit
+wandb.sklearn.plot_classifier(pipe.get_params()["classifier"],
+                              full_pipeline_preprocessing.transform(x_train),
+                              full_pipeline_preprocessing.transform(x_val),
+                              y_train,
+                              y_val,
+                              predict,
+                              pipe.predict_proba(x_val),
+                              [0,1],
+                              model_name='DT', feature_names=all_names)
 ~~~
 
 
