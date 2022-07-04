@@ -746,6 +746,204 @@ wandb.sklearn.plot_classifier(pipe.get_params()["classifier"],
                               model_name='DT', feature_names=all_names)
 ~~~
 
+Fechar o <b>run</b> para poder executar a proxima seção
+~~~
+run.finish()
+~~~
+
+global seed
+~~~
+seed = 41
+~~~
+
+Configuração do sweep
+~~~
+sweep_config = {
+    # try grid or random
+    "method": "random",
+    "metric": {
+        "name": "Accuracy",
+        "goal": "maximize"
+        },
+    "parameters": {
+        "criterion": {
+            "values": ["gini","entropy"]
+            },
+        "splitter": {
+            "values": ["random","best"]
+        },
+        "model": {
+            "values": [0,1,2]
+        },
+        "random_state": {
+            "values": [seed]
+        }
+    }
+}
+
+sweep_id = wandb.sweep(sweep_config, project="decision_tree")
+~~~
+
+Função do treinamento com diferentes metricas e parâmetros
+~~~
+def train():
+    with wandb.init() as run:
+
+        # The full pipeline 
+        pipe = Pipeline(steps = [('full_pipeline', full_pipeline_preprocessing),
+                                    ("classifier",DecisionTreeClassifier())
+                                    ]
+                        )
+
+        # update the parameters of the pipeline that we would like to tuning
+        pipe.set_params(**{"full_pipeline__num_pipeline__num_transformer__model": run.config.model})
+        pipe.set_params(**{"classifier__criterion": run.config.criterion})
+        pipe.set_params(**{"classifier__splitter": run.config.splitter})
+        pipe.set_params(**{"classifier__random_state": run.config.random_state})
+
+        # training
+        logger.info("Training")
+        pipe.fit(x_train, y_train)
+
+        # predict
+        logger.info("Infering")
+        predict = pipe.predict(x_val)
+
+        # Evaluation Metrics
+        logger.info("Evaluation metrics")
+        fbeta = fbeta_score(y_val, predict, beta=1, zero_division=1)
+        precision = precision_score(y_val, predict, zero_division=1)
+        recall = recall_score(y_val, predict, zero_division=1)
+        acc = accuracy_score(y_val, predict)
+
+        logger.info("Accuracy: {}".format(acc))
+        logger.info("Precision: {}".format(precision))
+        logger.info("Recall: {}".format(recall))
+        logger.info("F1: {}".format(fbeta))
+
+        run.summary["Accuracy"] = acc
+        run.summary["Precision"] = precision
+        run.summary["Recall"] = recall
+        run.summary["F1"] = fbeta
+~~~
+
+Testar o treinamento com diferentes metricas e parâmetros
+~~~
+wandb.agent(sweep_id, train, count=8)
+~~~
+
+Escolhendo o melhor pipeline após os testes anteriores. <b>Nesta etapa pode ser que você encontre características melhores </b>.  
+~~~
+# The full pipeline 
+pipe = Pipeline(steps = [('full_pipeline', full_pipeline_preprocessing),
+                         ("classifier",DecisionTreeClassifier())
+                         ]
+                )
+
+# update the parameters of the pipeline that we would like to tuning
+pipe.set_params(**{"full_pipeline__num_pipeline__num_transformer__model": 2})
+pipe.set_params(**{"classifier__criterion": 'entropy'})
+pipe.set_params(**{"classifier__splitter": 'random'})
+pipe.set_params(**{"classifier__random_state": 41})
 
 
 
+# training
+logger.info("Training")
+pipe.fit(x_train, y_train)
+
+# predict
+logger.info("Infering")
+predict = pipe.predict(x_val)
+
+# Evaluation Metrics
+logger.info("Evaluation metrics")
+fbeta = fbeta_score(y_val, predict, beta=1, zero_division=1)
+precision = precision_score(y_val, predict, zero_division=1)
+recall = recall_score(y_val, predict, zero_division=1)
+acc = accuracy_score(y_val, predict)
+
+logger.info("Accuracy: {}".format(acc))
+logger.info("Precision: {}".format(precision))
+logger.info("Recall: {}".format(recall))
+logger.info("F1: {}".format(fbeta))
+
+run.summary["Acc"] = acc
+run.summary["Precision"] = precision
+run.summary["Recall"] = recall
+run.summary["F1"] = fbeta
+~~~
+
+Pegar as colunas numéricas e categóricas 
+~~~
+# Get categorical column names
+cat_names = pipe.named_steps['full_pipeline'].get_params()["cat_pipeline"][3].get_feature_names_out().tolist()
+# Get numerical column names
+num_names = pipe.named_steps['full_pipeline'].get_params()["num_pipeline"][2].get_feature_names_out()
+~~~
+
+Juntar os nomes das colunas numéricas e categóricas
+~~~
+all_names = cat_names + num_names
+~~~
+
+Visualizar o melhor modelo
+
+~~~
+# Visualize all classifier plots
+# For a complete documentation please see: https://docs.wandb.ai/guides/integrations/scikit
+wandb.sklearn.plot_classifier(pipe.get_params()["classifier"],
+                              full_pipeline_preprocessing.transform(x_train),
+                              full_pipeline_preprocessing.transform(x_val),
+                              y_train,
+                              y_val,
+                              predict,
+                              pipe.predict_proba(x_val),
+                              [0,1],
+                              model_name='BestModel', feature_names=all_names)
+~~~
+
+Exportar o melhor modelo
+~~~
+# types and names of the artifacts
+artifact_type = "inference_artifact"
+artifact_encoder = "target_encoder"
+artifact_model = "model_export"
+
+logger.info("Dumping the artifacts to disk")
+# Save the model using joblib
+joblib.dump(pipe, artifact_model)
+
+# Save the target encoder using joblib
+joblib.dump(le, artifact_encoder)
+~~~
+
+Modelo do artefato
+~~~
+artifact = wandb.Artifact(artifact_model,
+                          type=artifact_type,
+                          description="A full pipeline composed of a Preprocessing Stage and a Decision Tree model"
+                          )
+
+logger.info("Logging model artifact")
+artifact.add_file(artifact_model)
+run.log_artifact(artifact)
+~~~
+
+Target encoder artifact
+~~~
+artifact = wandb.Artifact(artifact_encoder,
+                          type=artifact_type,
+                          description="The encoder used to encode the target variable"
+                          )
+
+logger.info("Logging target enconder artifact")
+artifact.add_file(artifact_encoder)
+run.log_artifact(artifact)
+~~~
+
+Finalizando etapa de treinamento
+
+~~~
+run.finish()
+~~~
