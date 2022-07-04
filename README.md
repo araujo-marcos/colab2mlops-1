@@ -488,5 +488,56 @@ class FeatureSelector(BaseEstimator, TransformerMixin):
         return X[self.feature_names]
 ~~~
 
+For validation purposes - object
+~~~
+fs = FeatureSelector(x_train.select_dtypes("object").columns.to_list())
+df = fs.fit_transform(x_train)
+df.head()
+~~~
+
+For validation purposes - int64
+~~~
+fs = FeatureSelector(x_train.select_dtypes("int64").columns.to_list())
+df = fs.fit_transform(x_train)
+df.head()
+~~~
+
+Lidando com os categóricos
+~~~
+# Handling categorical features
+class CategoricalTransformer(BaseEstimator, TransformerMixin):
+    # Class constructor method that takes one boolean as its argument
+    def __init__(self, new_features=True, colnames=None):
+        self.new_features = new_features
+        self.colnames = colnames
+
+    # Return self nothing else to do here
+    def fit(self, X, y=None):
+        return self
+
+    def get_feature_names_out(self):
+        return self.colnames.tolist()
+
+    # Transformer method we wrote for this transformer
+    def transform(self, X, y=None):
+        df = pd.DataFrame(X, columns=self.colnames)
+
+        # Remove white space in categorical features
+        df = df.apply(lambda row: row.str.strip())
+
+                # update column names
+        self.colnames = df.columns
+
+        return df
+~~~
+
+For validation purposes
+~~~
+fs = FeatureSelector(x_train.select_dtypes("object").columns.to_list())
+df = fs.fit_transform(x_train)
+
+ct = CategoricalTransformer(new_features=True,colnames=df.columns.tolist())
+df_cat = ct.fit_transform(df)
+~~~
 
 
