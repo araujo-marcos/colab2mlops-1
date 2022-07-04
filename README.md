@@ -141,7 +141,33 @@ ProfileReport(df, title="Pandas Profiling Report", explorative=True)
 ~~~
 
 ## 4.8 Pré-processamento
-
+Importar o artefato
+~~~
+input_artifact="decision_tree/raw_data.csv:latest"
+artifact_name="preprocessed_data.csv"
+artifact_type="clean_data"
+artifact_description="Data after preprocessing"
+~~~
+Criar um novo job_type
+~~~
+run = wandb.init(project="decision_tree", job_type="process_data")
+~~~
+download da última versão do artefato e cria um DF
+~~~
+artifact = run.use_artifact(input_artifact)
+df = pd.read_csv(artifact.file())
+~~~
+Cria um novo artefato e realiza as configurações básicas
+~~~
+artifact = wandb.Artifact(name=artifact_name,
+                          type=artifact_type,
+                          description=artifact_description)
+artifact.add_file(artifact_name)
+~~~
+Faz o upload do artefato
+~~~
+run.log_artifact(artifact)
+~~~
 
 
 
