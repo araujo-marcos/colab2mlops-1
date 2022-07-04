@@ -168,8 +168,9 @@ Faz o upload do artefato
 ~~~
 run.log_artifact(artifact)
 ~~~
-
-
+~~~
+run.finish()
+~~~
 
 
 
