@@ -279,7 +279,7 @@ Tipo do artefato
 artifact_type = "segregated_data"
 ~~~
 
-## configure logging
+Configure logging
 ~~~
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s %(message)s",
