@@ -1110,7 +1110,7 @@ y_test = le.transform(y_test)
 logger.info("Classes [0, 1]: {}".format(le.inverse_transform([0, 1])))
 ~~~
 
-Download inference artifact
+Download do artefato de inferência
 ~~~
 logger.info("Downloading and load the exported model")
 model_export_path = run.use_artifact(artifact_model_name).file()
@@ -1118,13 +1118,13 @@ pipe = joblib.load(model_export_path)
 ~~~
 
 
-Predict
+Predição
 ~~~
 logger.info("Infering")
 predict = pipe.predict(x_test)
 ~~~
 
-Evaluation Metrics
+Avaliação das Métricas
 ~~~
 logger.info("Test Evaluation metrics")
 fbeta = fbeta_score(y_test, predict, beta=1, zero_division=1)
@@ -1143,3 +1143,34 @@ run.summary["Recall"] = recall
 run.summary["F1"] = fbeta
 ~~~
 
+Comparando a acurácia, precisão e recall
+~~~
+print(classification_report(y_test,predict))
+~~~
+
+Matrix de confusão
+~~~
+fig_confusion_matrix, ax = plt.subplots(1,1,figsize=(7,4))
+ConfusionMatrixDisplay(confusion_matrix(predict,y_test,labels=[1,0]),
+                       display_labels=["yes","no"]).plot(values_format=".0f",ax=ax)
+
+ax.set_xlabel("True Label")
+ax.set_ylabel("Predicted Label")
+plt.show()
+~~~
+
+Uploading figures
+~~~
+logger.info("Uploading figures")
+run.log(
+    {
+        "confusion_matrix": wandb.Image(fig_confusion_matrix),
+        # "other_figure": wandb.Image(other_fig)
+    }
+)
+~~~
+
+Finalizando
+~~~
+run.finish()
+~~~
