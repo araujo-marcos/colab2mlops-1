@@ -1,4 +1,4 @@
-# Introdução
+# 1 Introdução
 
 O projeto aborda um projeto de Machine Learning com o intuito de prever o sucesso de chamadas de telemarketing para a venda de depósitos bancários de longo prazo (disponível no link: https://archive.ics.uci.edu/ml/datasets/Bank+Marketing#). Foi abordado como fonte os dados de um banco português, com dados recolhidos de 2008 a 2013, incluindo dessa forma os efeitos da crise financeira vivida mundialmente a partir de 2009. A análise efetuada confirmou o modelo obtido como credível e valioso para os gestores de campanhas de telemarketing.
 
@@ -11,13 +11,13 @@ O objetivo da classificação é prever se o cliente irá subscrever um depósit
 
 Para o desenvolvimento deste estudo foram utilizadas algumas tecnologias, como Marchin Learn, K-means, Decision Tree, Pipeline e Weights & Biases.
 
-# Informação dos Atributos
+# 2 Informação dos Atributos
 
 A seguir serão apresentadas as informações dos atributos utilizados no projeto, detalhando, inclusive, a categorização de cada variável.
 
-## Variáveis de Entrada
+## 2.1 Variáveis de Entrada
 
-### Dados do cliente do banco:
+### 2.1.1 Dados do cliente do banco:
 
 * age: idade (numérico); 
 * job: tipo de emprego (administrador, colarinho azul, empreendedor, empregada doméstica, gerenciamento, aposentado, autônomo, serviços, estudante, técnico, desempregado, desconhecido); 
@@ -27,49 +27,49 @@ A seguir serão apresentadas as informações dos atributos utilizados no projet
 * housing: tem crédito de habitação? (não, sim, desconhecido); 
 * loan: tem empréstimo pessoal? (não, sim, desconhecido);
 
-### Dados relacionados com o último contato da campanha atual:
+### 2.1.2 Dados relacionados com o último contato da campanha atual:
 
 * contact: tipo de comunicação do contato (celular, telefone);
 * month: último mês de contato do ano (jan, fev, mar, ..., nov, dec); 
 * day of week: último dia de contato da semana (seg, ter, qua, qui, sex); 
 * duration: duração do último contato, em segundos (numérico). Observação importante: esse atributo afeta muito o destino de saída (por exemplo, se duração = 0, então y = não). No entanto, a duração não é conhecida antes de uma chamada ser realizada. Além disso, após o término da chamada, y é obviamente conhecido.
 
-### Outros atributos:
+### 2.1.3 Outros atributos:
 * campaign: número de contatos realizados durante esta campanha e para este cliente (numérico, inclui último contato); 
 * pdays: número de dias que se passaram após o último contato com o cliente de uma campanha anterior (numérico; 999 significa que o cliente não foi contatado anteriormente); 
 * previous: número de contatos realizados antes desta campanha e para este cliente (numérico); 
 * Poutcome: resultado da campanha de marketing anterior (fracasso, inexistente, sucesso);
 
-###  Atributos do contexto social e econômico
+###  2.1.4 Atributos do contexto social e econômico
 * emp.var.rate: taxa de variação do emprego - indicador trimestral (numérico); 
 * cons.price.idx: índice de preços ao consumidor - indicador mensal (numérico); 
 * cons.conf.idx: índice de confiança do consumidor - indicador mensal (numérico); 
 * euribor3m: taxa de 3 meses euribor - indicador diário (numérico); 
 * nr.employed: número de funcionários - indicador trimestral (numérico).
 
-## Variáveis de Saída
+## 2.2 Variáveis de Saída
 * y - o cliente realizou um depósito a prazo? (sim, não).
 
-# Detalhes do <i> Workflow </i>
+# 3 Detalhes do <i> Workflow </i>
   
   Para a execução do projeto foram utilizados os passos apresentados no workflow criado e disponibilizado pelo Professor Ivanovitch Silva. Os passos desse pipeline foram conforme a imagem abaixo.
   
   ![Workflow](https://github.com/ivanovitchm/ppgeecmachinelearning/blob/main/images/workflow.png)
 
-# 1 ETAPAS DO PROCESSO
+# 4 ETAPAS DO PROCESSO
 
-## 1.1 Importanto o dataset
+## 4.1 Importanto o dataset
 
 Para conhecer e baixar o arquivo dataset utilizado neste projeto acesse: (https://www.kaggle.com/datasets/krantiswalke/bankfullcsv)
 
-## 1.2 Instalando bibliotecas 
+## 4.2 Instalando bibliotecas 
 
 ~~~
 !pip install pandas-profiling==3.1.0
 !pip install wandb
 ~~~
 
-## 1.3 Acessando o Wandb
+## 4.3 Acessando o Wandb
 
 Ants de realizar esta etapa será necessário criar um conta e adquirir a APIKEY do wandb. Acesse o link (https://wandb.ai) para registro. 
 ~~~
@@ -77,13 +77,13 @@ Ants de realizar esta etapa será necessário criar um conta e adquirir a APIKEY
 !wandb login --relogin
 ~~~
 
-## 1.4 Importanto as bibliotecas 
+## 4.4 Importanto as bibliotecas 
 ~~~
 import wandb
 import pandas as pd
 ~~~
   
-## 1.5 Importando o dataset
+## 4.5 Importando o dataset
 ~~~
 from google.colab import files
 
@@ -97,11 +97,17 @@ income = pd.read_csv("bank-full.csv", delimiter=';')
 income.head()
 ~~~
 
-## 1.6 Raw Data
+## 4.6 Raw Data
+Criar o arquivo .csv e enviar para o wandb como artefato. 
 ~~~
 income.to_csv("raw_data.csv",index=False)
 ~~~
-
+~~~
+!wandb artifact put \
+      --name decision_tree/raw_data.csv \
+      --type raw_data \
+      --description "The raw data from bank marketing" raw_data.csv
+~~~
 
 
 
