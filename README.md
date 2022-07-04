@@ -67,6 +67,14 @@ Para conhecer e baixar o arquivo dataset utilizado neste projeto acesse: (https:
 !pip install wandb
 ~~~
 
+# Acessando o Wandb
+
+Ants de realizar esta etapa será necessário criar um conta e adquirir a APIKEY do wandb. Acesse o link (https://wandb.ai) para registro. 
+~~~
+# Login to Weights & Biases
+!wandb login --relogin
+~~~
+
 # Importanto as bibliotecas 
 ~~~
 import wandb
