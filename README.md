@@ -140,6 +140,8 @@ Visualização dos dados no Pandas Profiling
 ProfileReport(df, title="Pandas Profiling Report", explorative=True)
 ~~~
 
+## 4.8 Pré-processamento
+
 
 
 
