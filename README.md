@@ -56,7 +56,46 @@ A seguir serão apresentadas as informações dos atributos utilizados no projet
   
   ![Workflow](https://github.com/ivanovitchm/ppgeecmachinelearning/blob/main/images/workflow.png)
 
-# Instalando as bibliotecas:
+# Importanto o dataset
 
+Para conhecer e baixar o arquivo dataset utilizado neste projeto acesse: (https://www.kaggle.com/datasets/krantiswalke/bankfullcsv)
 
+# Instalando bibliotecas 
+
+~~~
+!pip install pandas-profiling==3.1.0
+!pip install wandb
+~~~
+
+# Importanto as bibliotecas 
+~~~
+import wandb
+import pandas as pd
+~~~
   
+# Importando o dataset
+~~~
+from google.colab import files
+
+uploaded = files.upload()
+
+for fn in uploaded.keys():
+  print('User uploaded file "{name}" with length {length} bytes'.format(
+      name=fn, length=len(uploaded[fn])))
+     
+income = pd.read_csv("bank-full.csv", delimiter=';')
+income.head()
+~~~
+
+# Raw Data
+~~~
+income.to_csv("raw_data.csv",index=False)
+~~~
+
+
+
+
+
+
+
+
