@@ -56,18 +56,20 @@ A seguir serão apresentadas as informações dos atributos utilizados no projet
   
   ![Workflow](https://github.com/ivanovitchm/ppgeecmachinelearning/blob/main/images/workflow.png)
 
-# Importanto o dataset
+# 1 ETAPAS DO PROCESSO
+
+## 1.1 Importanto o dataset
 
 Para conhecer e baixar o arquivo dataset utilizado neste projeto acesse: (https://www.kaggle.com/datasets/krantiswalke/bankfullcsv)
 
-# Instalando bibliotecas 
+## 1.2 Instalando bibliotecas 
 
 ~~~
 !pip install pandas-profiling==3.1.0
 !pip install wandb
 ~~~
 
-# Acessando o Wandb
+## 1.3 Acessando o Wandb
 
 Ants de realizar esta etapa será necessário criar um conta e adquirir a APIKEY do wandb. Acesse o link (https://wandb.ai) para registro. 
 ~~~
@@ -75,13 +77,13 @@ Ants de realizar esta etapa será necessário criar um conta e adquirir a APIKEY
 !wandb login --relogin
 ~~~
 
-# Importanto as bibliotecas 
+## 1.4 Importanto as bibliotecas 
 ~~~
 import wandb
 import pandas as pd
 ~~~
   
-# Importando o dataset
+## 1.5 Importando o dataset
 ~~~
 from google.colab import files
 
@@ -95,7 +97,7 @@ income = pd.read_csv("bank-full.csv", delimiter=';')
 income.head()
 ~~~
 
-# Raw Data
+## 1.6 Raw Data
 ~~~
 income.to_csv("raw_data.csv",index=False)
 ~~~
