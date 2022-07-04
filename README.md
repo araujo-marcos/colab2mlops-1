@@ -545,3 +545,139 @@ Verifique a cardinalidade antes e depois da transformação
 x_train.select_dtypes("object").apply(pd.Series.nunique)
 df_cat.apply(pd.Series.nunique)
 ~~~
+
+
+Transformar as características numéricas
+~~~
+class NumericalTransformer(BaseEstimator, TransformerMixin):
+    # Class constructor method that takes a model parameter as its argument
+    # model 0: minmax
+    # model 1: standard
+    # model 2: without scaler
+    def __init__(self, model=0, colnames=None):
+        self.model = model
+        self.colnames = colnames
+        self.scaler = None
+
+    # Fit is used only to learn statistical about Scalers
+    def fit(self, X, y=None):
+        df = pd.DataFrame(X, columns=self.colnames)
+        # minmax
+        if self.model == 0:
+            self.scaler = MinMaxScaler()
+            self.scaler.fit(df)
+        # standard scaler
+        elif self.model == 1:
+            self.scaler = StandardScaler()
+            self.scaler.fit(df)
+        return self
+
+    # return columns names after transformation
+    def get_feature_names_out(self):
+        return self.colnames
+
+    # Transformer method we wrote for this transformer
+    # Use fitted scalers
+    def transform(self, X, y=None):
+        df = pd.DataFrame(X, columns=self.colnames)
+
+        # update columns name
+        self.colnames = df.columns.tolist()
+
+        # minmax
+        if self.model == 0:
+            # transform data
+            df = self.scaler.transform(df)
+        elif self.model == 1:
+            # transform data
+            df = self.scaler.transform(df)
+        else:
+            df = df.values
+
+        return df
+~~~
+
+Validação
+~~~
+fs = FeatureSelector(x_train.select_dtypes("int64").columns.to_list())
+df = fs.fit_transform(x_train)
+
+nt = NumericalTransformer(model=1)
+df_num = nt.fit_transform(df)
+~~~
+
+Modelos
+~~~
+# model = 0 (min-max), 1 (z-score), 2 (without normalization)
+numerical_model = 0
+
+# Categrical features to pass down the categorical pipeline
+categorical_features = x_train.select_dtypes("object").columns.to_list()
+
+# Numerical features to pass down the numerical pipeline
+numerical_features = x_train.select_dtypes("int64").columns.to_list()
+
+# Defining the steps for the categorical pipeline
+categorical_pipeline = Pipeline(steps=[('cat_selector', FeatureSelector(categorical_features)),
+                                       ('imputer_cat', SimpleImputer(strategy="most_frequent")),
+                                       ('cat_transformer', CategoricalTransformer(colnames=categorical_features)),
+                                       # ('cat_encoder','passthrough'
+                                       ('cat_encoder', OneHotEncoder(sparse=False, drop="first"))
+                                       ]
+                                )
+
+# Defining the steps in the numerical pipeline
+numerical_pipeline = Pipeline(steps=[('num_selector', FeatureSelector(numerical_features)),
+                                     ('imputer_num', SimpleImputer(strategy="median")),
+                                     ('num_transformer', NumericalTransformer(numerical_model, 
+                                                                              colnames=numerical_features))])
+
+# Combine numerical and categorical pieplines into one full big pipeline horizontally
+full_pipeline_preprocessing = FeatureUnion(transformer_list=[('cat_pipeline', categorical_pipeline),
+                                                             ('num_pipeline', numerical_pipeline)]
+                                           )
+~~~
+
+Validação
+
+~~~
+# for validation purposes
+new_data = full_pipeline_preprocessing.fit_transform(x_train)
+# cat_names is a numpy array
+cat_names = full_pipeline_preprocessing.get_params()["cat_pipeline"][3].get_feature_names_out().tolist()
+# num_names is a list
+num_names = full_pipeline_preprocessing.get_params()["num_pipeline"][2].get_feature_names_out()
+df = pd.DataFrame(new_data,columns = cat_names + num_names)
+df.head()
+~~~
+
+Pipeline completo
+~~~
+# The full pipeline 
+pipe = Pipeline(steps = [('full_pipeline', full_pipeline_preprocessing),
+                         ("classifier",DecisionTreeClassifier())
+                         ]
+                )
+
+# training
+logger.info("Training")
+pipe.fit(x_train, y_train)
+
+# predict
+logger.info("Infering")
+predict = pipe.predict(x_val)
+
+# Evaluation Metrics
+logger.info("Evaluation metrics")
+fbeta = fbeta_score(y_val, predict, beta=1, zero_division=1)
+precision = precision_score(y_val, predict, zero_division=1)
+recall = recall_score(y_val, predict, zero_division=1)
+acc = accuracy_score(y_val, predict)
+
+logger.info("Accuracy: {}".format(acc))
+logger.info("Precision: {}".format(precision))
+logger.info("Recall: {}".format(recall))
+logger.info("F1: {}".format(fbeta))
+~~~
+
+
