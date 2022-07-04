@@ -423,6 +423,36 @@ x_train, x_val, y_train, y_val = train_test_split(df_train.drop(labels=stratify,
                                                   stratify=df_train[stratify])
 ~~~
 
+Observando os valores de treino e teste
+~~~
+logger.info("x train: {}".format(x_train.shape))
+logger.info("y train: {}".format(y_train.shape))
+logger.info("x val: {}".format(x_val.shape))
+logger.info("y val: {}".format(y_val.shape))
+~~~
 
+Identificando os outliers
+~~~
+logger.info("Outlier Removal")
+# temporary variable
+x = x_train.select_dtypes("int64").copy()
 
+# identify outlier in the dataset
+lof = LocalOutlierFactor()
+outlier = lof.fit_predict(x)
+mask = outlier != -1
+~~~
 
+Antes e depois da retirada dos outliers
+~~~
+logger.info("x_train shape [original]: {}".format(x_train.shape))
+logger.info("x_train shape [outlier removal]: {}".format(x_train.loc[mask,:].shape))
+~~~
+
+Conjunto de treinamento e teste após retirada de dados
+~~~
+# AVOID data leakage and you should not do this procedure in the preprocessing stage
+# Note that we did not perform this procedure in the validation set
+x_train = x_train.loc[mask,:].copy()
+y_train = y_train[mask].copy()
+~~~
