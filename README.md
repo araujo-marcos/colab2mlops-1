@@ -126,7 +126,6 @@ run = wandb.init(project="decision_tree", save_code=True)
 ~~~
 
 Fazer o download da última versão do artefato
-
 ~~~
 # donwload the latest version of artifact raw_data.csv
 artifact = run.use_artifact("decision_tree/raw_data.csv:latest")
@@ -166,13 +165,11 @@ artifact = wandb.Artifact(name=artifact_name,
                           description=artifact_description)
 artifact.add_file(artifact_name)
 ~~~
-Faz o upload do artefato
+Faz o upload do artefato e finaliza
 ~~~
 run.log_artifact(artifact)
-~~~
-~~~
 run.finish()
-## 4.8 Pré-processamento
+~~~
 
 ## 4.9 Data_check
 Inicia novamente o projeto
