@@ -395,6 +395,34 @@ artifact_input_name = "decision_tree/train.csv:latest"
 artifact_type = "Train"
 ~~~
 
+Etapa de <b>logging</b>
+~~~
+# configure logging
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s %(message)s",
+                    datefmt='%d-%m-%Y %H:%M:%S')
+
+# reference for a logging obj
+logger = logging.getLogger()
+
+# initiate the wandb project
+run = wandb.init(project="decision_tree",job_type="train")
+
+logger.info("Downloading and reading train artifact")
+local_path = run.use_artifact(artifact_input_name).file()
+df_train = pd.read_csv(local_path)
+
+# Spliting train.csv into train and validation dataset
+logger.info("Spliting data into train/val")
+# split-out train/validation and test dataset
+x_train, x_val, y_train, y_val = train_test_split(df_train.drop(labels=stratify,axis=1),
+                                                  df_train[stratify],
+                                                  test_size=val_size,
+                                                  random_state=seed,
+                                                  shuffle=True,
+                                                  stratify=df_train[stratify])
+~~~
+
 
 
 
