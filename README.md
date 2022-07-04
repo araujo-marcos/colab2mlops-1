@@ -948,7 +948,7 @@ Finalizando etapa de treinamento
 run.finish()
 ~~~
 
-## 4.11 Train
+## 4.12 Teste
 Importando algumas bibliotecas. Não se preocupe caso alguma já tenha sido importada. 
 
 ~~~
@@ -965,7 +965,7 @@ import matplotlib.pyplot as plt
 ~~~
 
 Definindo as classes base
-* This is necessary in order to joblib.load()see the previous definitions used in the Train Pipeline.
+* É necessário verificar alguns importes da etapa do treinamento para utilizar o joblib.load().
 ~~~
 class FeatureSelector(BaseEstimator, TransformerMixin):
     # Class Constructor
@@ -1055,4 +1055,91 @@ class NumericalTransformer(BaseEstimator, TransformerMixin):
         return df
 ~~~
 
+Avaliação
+
+
+~~~
+# global variables
+
+# name of the artifact related to test dataset
+artifact_test_name = "decision_tree/test.csv:latest"
+
+# name of the model artifact
+artifact_model_name = "decision_tree/model_export:latest"
+
+# name of the target encoder artifact
+artifact_encoder_name = "decision_tree/target_encoder:latest"
+~~~
+
+Configuar logging
+~~~
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s %(message)s",
+                    datefmt='%d-%m-%Y %H:%M:%S')
+
+# reference for a logging obj
+logger = logging.getLogger()
+~~~
+
+Iniciar o projeto no wandb
+~~~
+run = wandb.init(project="decision_tree",job_type="test")
+~~~
+
+~~~
+logger.info("Downloading and reading test artifact")
+test_data_path = run.use_artifact(artifact_test_name).file()
+df_test = pd.read_csv(test_data_path)
+
+# Extract the target from the features
+logger.info("Extracting target from dataframe")
+x_test = df_test.copy()
+y_test = x_test.pop("y")
+~~~
+
+Extract the encoding of the target variable
+~~~
+logger.info("Extracting the encoding of the target variable")
+encoder_export_path = run.use_artifact(artifact_encoder_name).file()
+le = joblib.load(encoder_export_path)
+~~~
+
+Transform y_train
+~~~
+y_test = le.transform(y_test)
+logger.info("Classes [0, 1]: {}".format(le.inverse_transform([0, 1])))
+~~~
+
+Download inference artifact
+~~~
+logger.info("Downloading and load the exported model")
+model_export_path = run.use_artifact(artifact_model_name).file()
+pipe = joblib.load(model_export_path)
+~~~
+
+
+Predict
+~~~
+logger.info("Infering")
+predict = pipe.predict(x_test)
+~~~
+
+Evaluation Metrics
+~~~
+logger.info("Test Evaluation metrics")
+fbeta = fbeta_score(y_test, predict, beta=1, zero_division=1)
+precision = precision_score(y_test, predict, zero_division=1)
+recall = recall_score(y_test, predict, zero_division=1)
+acc = accuracy_score(y_test, predict)
+
+logger.info("Test Accuracy: {}".format(acc))
+logger.info("Test Precision: {}".format(precision))
+logger.info("Test Recall: {}".format(recall))
+logger.info("Test F1: {}".format(fbeta))
+
+run.summary["Acc"] = acc
+run.summary["Precision"] = precision
+run.summary["Recall"] = recall
+run.summary["F1"] = fbeta
+~~~
 
