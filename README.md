@@ -79,6 +79,7 @@ Ants de realizar esta etapa será necessário criar um conta e adquirir a APIKEY
 
 ## 4.4 Importanto as bibliotecas 
 ~~~
+%%file test_data.py
 import wandb
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -87,6 +88,7 @@ import numpy as np
 from pandas_profiling import ProfileReport
 import tempfile
 import os
+import pytest
 ~~~
   
 ## 4.5 Importando o dataset
@@ -170,7 +172,89 @@ run.log_artifact(artifact)
 ~~~
 ~~~
 run.finish()
+## 4.8 Pré-processamento
+
+## 4.9 Data_check
+Inicia novamente o projeto
 ~~~
+run = wandb.init(project="decision_tree", job_type="data_checks")
+~~~
+Define algumas colunas de teste
+~~~
+@pytest.fixture(scope="session")
+def data():
+
+    local_path = run.use_artifact("decision_tree/preprocessed_data.csv:latest").file()
+    df = pd.read_csv(local_path)
+
+    return df
+
+def test_data_length(data):
+    """
+    We test that we have enough data to continue
+    """
+    assert len(data) > 1000
+
+
+def test_number_of_columns(data):
+    """
+    We test that we have enough data to continue
+    """
+    assert data.shape[1] == 17
+
+def test_column_presence_and_type(data):
+
+    required_columns = {
+        "age": pd.api.types.is_int64_dtype,
+        "job": pd.api.types.is_object_dtype,
+        "marital": pd.api.types.is_object_dtype,
+        "education": pd.api.types.is_object_dtype,
+        "default": pd.api.types.is_object_dtype,
+        "balance": pd.api.types.is_int64_dtype,
+        "housing": pd.api.types.is_object_dtype,
+        "loan": pd.api.types.is_object_dtype,
+        "contact": pd.api.types.is_object_dtype,
+        "day": pd.api.types.is_int64_dtype,
+        "month": pd.api.types.is_object_dtype,
+        "duration": pd.api.types.is_int64_dtype,
+        "campaign": pd.api.types.is_int64_dtype,
+        "pdays": pd.api.types.is_int64_dtype,
+        "previous": pd.api.types.is_int64_dtype,
+        "poutcome": pd.api.types.is_object_dtype,
+        "y": pd.api.types.is_object_dtype
+    }
+
+    # Check column presence
+    assert set(data.columns.values).issuperset(set(required_columns.keys()))
+
+    for col_name, format_verification_funct in required_columns.items():
+
+        assert format_verification_funct(data[col_name]), f"Column {col_name} failed test {format_verification_funct}"
+
+def test_column_ranges(data):
+
+    ranges = {
+        "age": (18, 95),
+        "balance": (-8019, 102127),
+        "day": (1, 31),
+        "duration": (0, 4918),
+        "campaign": (1, 63),
+        "pdays": (-1, 871),
+        "previous": (0, 275)
+    }
+
+    for col_name, (minimum, maximum) in ranges.items():
+
+        assert data[col_name].dropna().between(minimum, maximum).all(), (
+            f"Column {col_name} failed the test. Should be between {minimum} and {maximum}, "
+            f"instead min={data[col_name].min()} and max={data[col_name].max()}"
+        )
+~~~
+Tendo o código de teste faz a execução pelo terminal com o comando:
+~~~
+!pytest . -vv
+~~~
+
 
 
 
