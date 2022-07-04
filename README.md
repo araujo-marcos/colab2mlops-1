@@ -89,6 +89,9 @@ from pandas_profiling import ProfileReport
 import tempfile
 import os
 import pytest
+import logging
+import tempfile
+from sklearn.model_selection import train_test_split
 ~~~
   
 ## 4.5 Importando o dataset
@@ -250,6 +253,32 @@ def test_column_ranges(data):
 Tendo o código de teste faz a execução pelo terminal com o comando:
 ~~~
 !pytest . -vv
+~~~
+
+## 4.10 Data_segregation
+Define algumas variáveis globais
+### ratio used to split train and test data
+~~~
+test_size = 0.30
+~~~
+
+### seed used to reproduce purposes
+~~~
+seed = 41
+~~~
+
+### reference (column) to stratify the data
+~~~
+stratify = "y"
+~~~
+
+### name of the input artifact
+~~~
+artifact_input_name = "decision_tree/preprocessed_data.csv:latest"
+~~~
+
+### type of the artifact
+artifact_type = "segregated_data"
 ~~~
 
 
