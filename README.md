@@ -540,4 +540,8 @@ ct = CategoricalTransformer(new_features=True,colnames=df.columns.tolist())
 df_cat = ct.fit_transform(df)
 ~~~
 
-
+Verifique a cardinalidade antes e depois da transformação
+~~~
+x_train.select_dtypes("object").apply(pd.Series.nunique)
+df_cat.apply(pd.Series.nunique)
+~~~
