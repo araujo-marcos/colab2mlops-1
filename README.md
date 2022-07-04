@@ -457,7 +457,7 @@ x_train = x_train.loc[mask,:].copy()
 y_train = y_train[mask].copy()
 ~~~
 
-
+<b> Fit e transform </b>
 ~~~
 logger.info("Encoding Target Variable")
 # define a categorical encoding for target variable
@@ -472,6 +472,21 @@ y_val = le.transform(y_val)
 logger.info("Classes [0, 1]: {}".format(le.inverse_transform([0, 1])))
 ~~~
 
+Definição da classe <b> FeatureSelector </b>
+~~~
+class FeatureSelector(BaseEstimator, TransformerMixin):
+    # Class Constructor
+    def __init__(self, feature_names):
+        self.feature_names = feature_names
+
+    # Return self nothing else to do here
+    def fit(self, X, y=None):
+        return self
+
+    # Method that describes what this custom transformer need to do
+    def transform(self, X, y=None):
+        return X[self.feature_names]
+~~~
 
 
 
